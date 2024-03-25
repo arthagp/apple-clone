@@ -21,21 +21,24 @@ const VideoCarousel = () => {
 
     const { isEnd, isLastVideo, startPlay, videoId, isPlaying } = video;
 
+    // console.log(videoId) //0,1,2,3
+
     useGSAP(() => {
         // slider animation to move the video out of the screen and bring the next video in
         gsap.to("#slider", {
-            transform: `translateX(${-100 * videoId}%)`,
+            transform: `translateX(${-100 * videoId}%)`, // translateX() kenapa minus karena agar slide nya ngiri dan di kali dengan berdasarkan kan videoId nya
             duration: 2,
             ease: "power2.inOut", // show visualizer https://gsap.com/docs/v3/Eases
         });
 
         // video animation to play the video when it is in the view
         gsap.to("#video", {
-            scrollTrigger: {
+            scrollTrigger: { // scroll trigger ini tidak berpengaruh secara langsung, jika kamu hapus ini tidak jadi masalah
                 trigger: "#video",
-                toggleActions: "restart none none none",
+                toggleActions: "restart pause resume pause",
             },
             onComplete: () => {
+                // membuat state baru yang mana akan melakukan play video
                 setVideo((pre) => ({
                     ...pre,
                     startPlay: true,
@@ -45,8 +48,10 @@ const VideoCarousel = () => {
         });
     }, [isEnd, videoId]);
 
+
     React.useEffect(() => {
         if (loadedData.length > 3) {
+            // handle ketika play dan pause
             if (!isPlaying) {
                 // console.log('pause')
                 videoRef.current[videoId].pause();
@@ -57,10 +62,11 @@ const VideoCarousel = () => {
         }
     }, [startPlay, videoId, isPlaying, loadedData]);
 
-    const handleProcess = (type, i) => {
+
+    const handleProcess = (type, i) => { // function ini untuk handle pada bagian play, reset, pause, dan render icon img
         switch (type) {
             case "video-end":
-                setVideo((pre) => ({ ...pre, isEnd: true, videoId: i + 1 }));
+                setVideo((pre) => ({ ...pre, isEnd: true, videoId: i + 1 })); // ketika video sudah mencapai videoId 4/last video maka isEnd true
                 break;
 
             case "video-last":
